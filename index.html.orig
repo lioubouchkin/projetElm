@@ -1,0 +1,19 @@
+<html>
+<body>
+    <script>
+        function add(obj) {
+            console.log(obj.name);
+        }
+    </script>
+    <h1>
+        Hello !
+    </h1>
+    <div id="main"></div>
+    <script src="game.js"></script>
+    <script>
+        var node = document.getElementById('main');
+        var app = Elm.Game.embed(node);
+        // Note: Elm.XXX.embed(node) - XXX is the .elm module name
+    </script>
+</body>
+</html>
