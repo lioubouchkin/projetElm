@@ -19,7 +19,6 @@ main =
 
 type alias Model =
   {
-    gameName : String,
     playerName : String,
     playerCards : Int,
     playerPoints : Int,
@@ -29,12 +28,12 @@ type alias Model =
 
 model : Model
 model =
-  Model "Game 1" "Joueur 1" 0 0 52 False
+  Model "Joueur 1" 0 0 52 False
 
 init : String -> (Model, Cmd Msg)
 init topic =
   ( model
-  , newGame model.gameName
+  , newGame model.playerName
   )
 
 
@@ -90,32 +89,12 @@ update msg model =
       (model, Cmd.none)
 
 
-{- GameRead (Err _) ->
-      (model, Cmd.none)
-    PickCard ->
-      (model, pickCard (model.gameName, model.playerName))
-    CardRead (Ok card) ->
-      ({ model | 
-          heapSize = model.heapSize - 1,
-          playerCards = model.playerCards + 1,
-          playerPoints = model.playerPoints + card.score
-      }, Cmd.none)
-    CardRead (Err _) ->
-      (model, Cmd.none)
-    End ->
-      ({ model | 
-          endGame = True 
-      }, Cmd.none)
--}
-
-
 -- VIEW
 
 view : Model -> Html Msg
 view model =
   div []
-    [ div [] [ text (toString model.gameName) ]
-    , div [] [ text (toString model.playerName) ]
+    [ div [] [ text (toString model.playerName) ]
     , button [ onClick PickCard ] [ text "Pick a card" ]
     , div [] [ text (toString model.playerPoints) ]
     , div [] [ text (toString model.heapSize) ]
