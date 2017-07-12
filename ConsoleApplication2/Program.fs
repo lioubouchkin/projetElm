@@ -7,13 +7,21 @@ open System.IO
 open Suave.Filters
 open Suave.Operators
 open Suave.Successful
+open Suave.RequestErrors
 
 
 [<EntryPoint>]
 let main argv =
+  // request treatement
+  let browse =
+    request (fun r ->
+      match r.queryParam "action" with
+      | Choice1Of2 action -> OK (sprintf "Action: %s" action)
+      | Choice2Of2 msg -> Files.browseFileHome "index.html")
   let app : WebPart =
     choose [
-      GET >=> path "/" >=> Files.browseFileHome "index.html"
+//      GET >=> path "/" >=> Files.browseFileHome "index.html"
+      GET >=> path "/" >=> browse
       GET >=> Files.browseHome
       RequestErrors.NOT_FOUND "Page not found." 
     ]
@@ -21,16 +29,6 @@ let main argv =
     { defaultConfig with homeFolder = Some (Path.GetFullPath "../../../") }
   
   startWebServer config app
-//  let cts = new CancellationTokenSource()
-//  let conf = { defaultConfig with cancellationToken = cts.Token }
-//  let listening, server = startWebServerAsync conf (Successful.OK "Hello World")
-//  let listening, server = startWebServerAsync conf app
-    
-//  Async.Start(server, cts.Token)
-//  printfn "Make requests now"
-//  Console.ReadKey true |> ignore
-    
-//  cts.Cancel()
 
   0 // return an integer exit code
 
