@@ -14,8 +14,11 @@ E:\MyDocs\INTECH\Programmation fonctionnelle\Projet\ConsoleApplication2\ConsoleA
 E:\MyDocs\INTECH\Programmation fonctionnelle\Projet\ConsoleApplication2\ConsoleApplication2\bin\Debug\ConsoleApplication2.exe
 E:\MyDocs\INTECH\Programmation fonctionnelle\Projet\ConsoleApplication2\ConsoleApplication2\bin\Debug\ConsoleApplication2.pdb
 E:\MyDocs\INTECH\Programmation fonctionnelle\Projet\ConsoleApplication2\ConsoleApplication2\bin\Debug\FSharp.Core.dll
+E:\MyDocs\INTECH\Programmation fonctionnelle\Projet\ConsoleApplication2\ConsoleApplication2\bin\Debug\Newtonsoft.Json.dll
 E:\MyDocs\INTECH\Programmation fonctionnelle\Projet\ConsoleApplication2\ConsoleApplication2\bin\Debug\Suave.dll
+E:\MyDocs\INTECH\Programmation fonctionnelle\Projet\ConsoleApplication2\ConsoleApplication2\bin\Debug\System.ValueTuple.dll
 E:\MyDocs\INTECH\Programmation fonctionnelle\Projet\ConsoleApplication2\ConsoleApplication2\bin\Debug\FSharp.Core.xml
+E:\MyDocs\INTECH\Programmation fonctionnelle\Projet\ConsoleApplication2\ConsoleApplication2\bin\Debug\Newtonsoft.Json.xml
 E:\MyDocs\INTECH\Programmation fonctionnelle\Projet\ConsoleApplication2\ConsoleApplication2\bin\Debug\Suave.xml
 E:\MyDocs\INTECH\Programmation fonctionnelle\Projet\ConsoleApplication2\ConsoleApplication2\obj\Debug\ConsoleApplication2.fsproj.ConsoleApplication2.exe.config
 E:\MyDocs\INTECH\Programmation fonctionnelle\Projet\ConsoleApplication2\ConsoleApplication2\obj\Debug\ConsoleApplication2.exe

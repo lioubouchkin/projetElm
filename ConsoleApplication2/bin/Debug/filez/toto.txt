@@ -1,0 +1,23 @@
+1;2;4;5;6;7;8;9;10;11;12;13
+1;3;4;5;6;7;8;9;10;11;12;13
+2;3;4;5;6;7;8;9;10;11;12;13
+1;2;3;4;5;6;7;8;9;11;12;13
+Joueur 1;Joueur 2
+0;1
+p_1;k_3;
+c_2;t_10;
+
+
+{
+  "cards": [
+    ["t_1","p_2"],
+    ["c_5","p_10"]
+  ],
+  "points": [3,15],
+  "players": ["jean pierre","igor"],
+  "status": [1,1]
+}
+
+status []	jeu pas démarré, nom joueurs n'est pas initialisé
+status [0]	jeu en cours
+status [1]	jeu finis

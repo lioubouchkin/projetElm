@@ -7,12 +7,12 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "ConsoleApplication2", "Cons
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "elm-source", "elm-source", "{6B5D913C-29F7-4FED-98ED-74F96B141CDE}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "source", "source", "{7AD8A2BE-C0A0-4C4A-898A-AB435B95DE23}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "filez", "filez", "{9C1505AA-CB26-4CA1-A01E-164102BA9650}"
 	ProjectSection(SolutionItems) = preProject
-		game.elm = game.elm
-		game.js = game.js
-		index.html = index.html
-		test.js = test.js
+		ConsoleApplication2\bin\Debug\filez\game.elm = ConsoleApplication2\bin\Debug\filez\game.elm
+		ConsoleApplication2\bin\Debug\filez\game.js = ConsoleApplication2\bin\Debug\filez\game.js
+		ConsoleApplication2\bin\Debug\filez\index.html = ConsoleApplication2\bin\Debug\filez\index.html
+		ConsoleApplication2\bin\Debug\filez\temp.txt = ConsoleApplication2\bin\Debug\filez\temp.txt
 	EndProjectSection
 EndProject
 Global

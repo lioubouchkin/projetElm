@@ -1,21 +1,200 @@
+var _user$project$Game$decodeGameState = A2(
+	_elm_lang$core$Json_Decode$at,
+	{
+		ctor: '::',
+		_0: 'data',
+		_1: {
+			ctor: '::',
+			_0: 'state',
+			_1: {ctor: '[]'}
+		}
+	},
+	_elm_lang$core$Json_Decode$string);
+var _user$project$Game$decodePickCard = A2(
+	_elm_lang$core$Json_Decode$at,
+	{
+		ctor: '::',
+		_0: 'data',
+		_1: {
+			ctor: '::',
+			_0: 'card',
+			_1: {ctor: '[]'}
+		}
+	},
+	_elm_lang$core$Json_Decode$string);
+var _user$project$Game$decodeStopGame = A2(
+	_elm_lang$core$Json_Decode$at,
+	{
+		ctor: '::',
+		_0: 'data',
+		_1: {
+			ctor: '::',
+			_0: 'game',
+			_1: {ctor: '[]'}
+		}
+	},
+	_elm_lang$core$Json_Decode$string);
+var _user$project$Game$decodeJoinGame = A2(_elm_lang$core$Json_Decode$field, 'player', _elm_lang$core$Json_Decode$string);
+var _user$project$Game$userBordsStyle = _elm_lang$html$Html_Attributes$style(
+	{
+		ctor: '::',
+		_0: {ctor: '_Tuple2', _0: 'float', _1: 'left'},
+		_1: {
+			ctor: '::',
+			_0: {ctor: '_Tuple2', _0: 'padding', _1: '0 50px'},
+			_1: {ctor: '[]'}
+		}
+	});
+var _user$project$Game$renderCards = function (lst) {
+	return A2(
+		_elm_lang$html$Html$ul,
+		{ctor: '[]'},
+		A2(
+			_elm_lang$core$List$map,
+			function (l) {
+				return A2(
+					_elm_lang$html$Html$li,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text(l),
+						_1: {ctor: '[]'}
+					});
+			},
+			lst));
+};
+var _user$project$Game$subscriptions = function (model) {
+	return _elm_lang$core$Platform_Sub$none;
+};
+var _user$project$Game$player = {
+	name: '',
+	status: 0,
+	points: 0,
+	cards: {ctor: '[]'}
+};
+var _user$project$Game$model = {pl: _user$project$Game$player};
+var _user$project$Game$Player = F4(
+	function (a, b, c, d) {
+		return {name: a, status: b, points: c, cards: d};
+	});
+var _user$project$Game$Model = function (a) {
+	return {pl: a};
+};
+var _user$project$Game$init = {
+	ctor: '_Tuple2',
+	_0: _user$project$Game$Model(_user$project$Game$player),
+	_1: _elm_lang$core$Platform_Cmd$none
+};
+var _user$project$Game$GameStateResponse = function (a) {
+	return {ctor: 'GameStateResponse', _0: a};
+};
+var _user$project$Game$gameState = function () {
+	var url = A2(_elm_lang$core$Basics_ops['++'], 'http://localhost:8080/gameState/', _user$project$Game$model.pl.name);
+	var request = A2(_elm_lang$http$Http$get, url, _user$project$Game$decodePickCard);
+	return A2(_elm_lang$http$Http$send, _user$project$Game$GameStateResponse, request);
+}();
+var _user$project$Game$GameState = {ctor: 'GameState'};
+var _user$project$Game$PickCardResponse = function (a) {
+	return {ctor: 'PickCardResponse', _0: a};
+};
+var _user$project$Game$pickCard = function () {
+	var url = A2(_elm_lang$core$Basics_ops['++'], 'http://localhost:8080/pickCard/', _user$project$Game$model.pl.name);
+	var request = A2(_elm_lang$http$Http$get, url, _user$project$Game$decodePickCard);
+	return A2(_elm_lang$http$Http$send, _user$project$Game$PickCardResponse, request);
+}();
+var _user$project$Game$PickCard = {ctor: 'PickCard'};
+var _user$project$Game$StopGameResponse = function (a) {
+	return {ctor: 'StopGameResponse', _0: a};
+};
+var _user$project$Game$stopGame = function () {
+	var url = A2(_elm_lang$core$Basics_ops['++'], 'http://localhost:8080/stopGame/', _user$project$Game$model.pl.name);
+	var request = A2(_elm_lang$http$Http$get, url, _user$project$Game$decodeStopGame);
+	return A2(_elm_lang$http$Http$send, _user$project$Game$StopGameResponse, request);
+}();
+var _user$project$Game$StopGame = {ctor: 'StopGame'};
+var _user$project$Game$JoinGameResponse = function (a) {
+	return {ctor: 'JoinGameResponse', _0: a};
+};
+var _user$project$Game$joinGame = function (name) {
+	var url = A2(_elm_lang$core$Basics_ops['++'], 'http://localhost:8080/newgame/', name);
+	var request = A2(_elm_lang$http$Http$get, url, _user$project$Game$decodeJoinGame);
+	return A2(_elm_lang$http$Http$send, _user$project$Game$JoinGameResponse, request);
+};
 var _user$project$Game$update = F2(
 	function (msg, model) {
 		var _p0 = msg;
-		return _elm_lang$core$Native_Utils.update(
-			model,
-			{heapSize: model.heapSize - 1, playerCards: model.playerCards + 1, playerPoints: model.playerPoints + 1});
+		switch (_p0.ctor) {
+			case 'Display':
+				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+			case 'PickCard':
+				return {ctor: '_Tuple2', _0: model, _1: _user$project$Game$pickCard};
+			case 'PickCardResponse':
+				if (_p0._0.ctor === 'Ok') {
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				} else {
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				}
+			case 'GameState':
+				return {ctor: '_Tuple2', _0: model, _1: _user$project$Game$gameState};
+			case 'GameStateResponse':
+				if (_p0._0.ctor === 'Ok') {
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				} else {
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				}
+			case 'JoinGame':
+				return {
+					ctor: '_Tuple2',
+					_0: model,
+					_1: _user$project$Game$joinGame(model.pl.name)
+				};
+			case 'JoinGameResponse':
+				if (_p0._0.ctor === 'Ok') {
+					return {
+						ctor: '_Tuple2',
+						_0: _user$project$Game$Model(
+							A4(
+								_user$project$Game$Player,
+								_p0._0._0,
+								1,
+								0,
+								{ctor: '[]'})),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				} else {
+					return {
+						ctor: '_Tuple2',
+						_0: _user$project$Game$Model(
+							A4(
+								_user$project$Game$Player,
+								'Error',
+								1,
+								0,
+								{ctor: '[]'})),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				}
+			case 'StopGame':
+				return {ctor: '_Tuple2', _0: model, _1: _user$project$Game$stopGame};
+			case 'StopGameResponse':
+				if (_p0._0.ctor === 'Ok') {
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				} else {
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				}
+			default:
+				return {
+					ctor: '_Tuple2',
+					_0: _user$project$Game$Model(
+						A4(_user$project$Game$Player, _p0._0, model.pl.status, model.pl.points, model.pl.cards)),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+		}
 	});
-var _user$project$Game$Card = F2(
-	function (a, b) {
-		return {num: a, score: b};
-	});
-var _user$project$Game$card = A2(_user$project$Game$Card, '10', 10);
-var _user$project$Game$Model = F4(
-	function (a, b, c, d) {
-		return {playerName: a, playerCards: b, playerPoints: c, heapSize: d};
-	});
-var _user$project$Game$model = A4(_user$project$Game$Model, 'Joueur 1', 0, 0, 52);
-var _user$project$Game$Pick = {ctor: 'Pick'};
+var _user$project$Game$JoinGame = {ctor: 'JoinGame'};
+var _user$project$Game$Name = function (a) {
+	return {ctor: 'Name', _0: a};
+};
 var _user$project$Game$view = function (model) {
 	return A2(
 		_elm_lang$html$Html$div,
@@ -24,54 +203,101 @@ var _user$project$Game$view = function (model) {
 			ctor: '::',
 			_0: A2(
 				_elm_lang$html$Html$div,
-				{ctor: '[]'},
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html$text(
-						_elm_lang$core$Basics$toString(model.playerName)),
+					_0: _user$project$Game$userBordsStyle,
 					_1: {ctor: '[]'}
-				}),
-			_1: {
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$button,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Events$onClick(_user$project$Game$Pick),
-						_1: {ctor: '[]'}
-					},
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html$text('Pick'),
-						_1: {ctor: '[]'}
-					}),
-				_1: {
+				},
+				{
 					ctor: '::',
 					_0: A2(
-						_elm_lang$html$Html$div,
+						_elm_lang$html$Html$h2,
 						{ctor: '[]'},
 						{
 							ctor: '::',
 							_0: _elm_lang$html$Html$text(
-								_elm_lang$core$Basics$toString(model.playerPoints)),
+								_elm_lang$core$Native_Utils.eq(model.pl.status, 1) ? model.pl.name : ''),
 							_1: {ctor: '[]'}
 						}),
 					_1: {
 						ctor: '::',
-						_0: A2(
+						_0: _elm_lang$core$Native_Utils.eq(model.pl.status, 1) ? A2(
 							_elm_lang$html$Html$div,
 							{ctor: '[]'},
 							{
 								ctor: '::',
-								_0: _elm_lang$html$Html$text(
-									_elm_lang$core$Basics$toString(model.heapSize)),
+								_0: _elm_lang$html$Html$text(''),
 								_1: {ctor: '[]'}
-							}),
-						_1: {ctor: '[]'}
+							}) : A2(
+							_elm_lang$html$Html$input,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$type_('text'),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$placeholder('Votre nom'),
+									_1: {
+										ctor: '::',
+										_0: _elm_lang$html$Html_Events$onInput(_user$project$Game$Name),
+										_1: {ctor: '[]'}
+									}
+								}
+							},
+							{ctor: '[]'}),
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$div,
+								{ctor: '[]'},
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html$text('Cards:'),
+									_1: {
+										ctor: '::',
+										_0: _elm_lang$core$Native_Utils.eq(model.pl.status, 1) ? _user$project$Game$renderCards(model.pl.cards) : _elm_lang$html$Html$text(''),
+										_1: {ctor: '[]'}
+									}
+								}),
+							_1: {
+								ctor: '::',
+								_0: A2(
+									_elm_lang$html$Html$div,
+									{ctor: '[]'},
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html$text('Points: '),
+										_1: {
+											ctor: '::',
+											_0: _elm_lang$html$Html$text(
+												_elm_lang$core$Native_Utils.eq(model.pl.status, 1) ? _elm_lang$core$Basics$toString(model.pl.points) : ''),
+											_1: {ctor: '[]'}
+										}
+									}),
+								_1: {
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$button,
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html_Events$onClick(
+												_elm_lang$core$Native_Utils.eq(model.pl.status, 1) ? _user$project$Game$PickCard : _user$project$Game$JoinGame),
+											_1: {ctor: '[]'}
+										},
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html$text(
+												_elm_lang$core$Native_Utils.eq(model.pl.status, 1) ? 'Pick Card' : 'Join Game'),
+											_1: {ctor: '[]'}
+										}),
+									_1: {ctor: '[]'}
+								}
+							}
+						}
 					}
-				}
-			}
+				}),
+			_1: {ctor: '[]'}
 		});
 };
-var _user$project$Game$main = _elm_lang$html$Html$beginnerProgram(
-	{model: _user$project$Game$model, view: _user$project$Game$view, update: _user$project$Game$update})();
+var _user$project$Game$main = _elm_lang$html$Html$program(
+	{init: _user$project$Game$init, view: _user$project$Game$view, update: _user$project$Game$update, subscriptions: _user$project$Game$subscriptions})();
+var _user$project$Game$Display = {ctor: 'Display'};
