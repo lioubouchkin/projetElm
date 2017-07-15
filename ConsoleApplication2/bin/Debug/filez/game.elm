@@ -21,16 +21,18 @@ main =
 -- MODEL
 
 type alias Player = 
-  {name:String,
-  status:Int,
-  points: Int,
-  cards: List String}
+  {cards: List String
+  ,points: Int
+  ,name:String
+  ,status:Int
+  }
 player : Player
 player = 
-  {name="",
-  status=0,
-  points=0,
-  cards=[]}
+  {cards=[]
+  ,points=0
+  ,name=""
+  ,status=0
+  }
 
 type alias Model =
   {pl : Player}
@@ -54,7 +56,7 @@ type Msg
   | StopGame
   | StopGameResponse (Result Http.Error String)
   | PickCard
-  | PickCardResponse (Result Http.Error String)
+  | PickCardResponse (Result Http.Error (List String))
   | GameState
   | GameStateResponse (Result Http.Error String)
 
@@ -65,11 +67,11 @@ update msg model =
     Display ->
       (model, Cmd.none)
     PickCard ->
-      (model, pickCard)
-    PickCardResponse (Ok _) ->
-      (model, Cmd.none)
+      (model, pickCard model.pl.name)
+    PickCardResponse (Ok cards) ->
+      (Model (Player cards 0 model.pl.name 1), Cmd.none)
     PickCardResponse (Err _) ->
-      (model, Cmd.none)    
+      (Model (Player [] 0 "Error" 1), Cmd.none)    
     GameState ->
       (model, gameState)   
     GameStateResponse (Ok _) ->
@@ -79,9 +81,9 @@ update msg model =
     JoinGame ->
       (model, joinGame model.pl.name)
     JoinGameResponse (Ok name) ->
-      (Model (Player name 1 0 []), Cmd.none) 
+      (Model (Player [] 0 name 1), Cmd.none) 
     JoinGameResponse (Err _) ->
-      (Model (Player "Error" 1 0 []), Cmd.none)
+      (Model (Player [] 0 "Error" 1), Cmd.none)
     StopGame ->
       (model, stopGame)  
     StopGameResponse (Ok _) ->
@@ -89,7 +91,7 @@ update msg model =
     StopGameResponse (Err _) ->
       (model, Cmd.none)
     Name name ->
-      (Model (Player name model.pl.status model.pl.points model.pl.cards),
+      (Model (Player model.pl.cards model.pl.points name model.pl.status),
       Cmd.none)
       
 
@@ -149,10 +151,10 @@ view model =
 -- HTTP
 
 joinGame : String -> Cmd Msg
-joinGame name =
+joinGame player =
   let
     url =
-      "http://localhost:8080/newgame/" ++ name
+      "http://localhost:8080/newgame/" ++ player
 
     request =
       Http.get url decodeJoinGame
@@ -161,7 +163,24 @@ joinGame name =
 
 decodeJoinGame : Decode.Decoder String
 decodeJoinGame =
-  Decode.field "player" Decode.string
+  Decode.field "name" Decode.string
+
+--
+
+pickCard : String -> Cmd Msg
+pickCard player =
+  let
+    url =
+      "http://localhost:8080/pickCard/" ++ player
+
+    request =
+      Http.get url decodePickCard
+  in
+    Http.send PickCardResponse request
+
+decodePickCard : Decode.Decoder (List String)
+decodePickCard =
+  Decode.at [ "cards" ] (Decode.list Decode.string)
 
 --
 
@@ -182,23 +201,6 @@ decodeStopGame =
 
 --
 
-pickCard : Cmd Msg
-pickCard =
-  let
-    url =
-      "http://localhost:8080/pickCard/" ++ model.pl.name
-
-    request =
-      Http.get url decodePickCard
-  in
-    Http.send PickCardResponse request
-
-decodePickCard : Decode.Decoder String
-decodePickCard =
-  Decode.at ["data", "card"] Decode.string
-
---
-
 gameState : Cmd Msg
 gameState =
   let
@@ -206,7 +208,7 @@ gameState =
       "http://localhost:8080/gameState/" ++ model.pl.name
 
     request =
-      Http.get url decodePickCard
+      Http.get url decodeGameState
   in
     Http.send GameStateResponse request
 

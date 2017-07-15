@@ -9045,18 +9045,6 @@ var _user$project$Game$decodeGameState = A2(
 		}
 	},
 	_elm_lang$core$Json_Decode$string);
-var _user$project$Game$decodePickCard = A2(
-	_elm_lang$core$Json_Decode$at,
-	{
-		ctor: '::',
-		_0: 'data',
-		_1: {
-			ctor: '::',
-			_0: 'card',
-			_1: {ctor: '[]'}
-		}
-	},
-	_elm_lang$core$Json_Decode$string);
 var _user$project$Game$decodeStopGame = A2(
 	_elm_lang$core$Json_Decode$at,
 	{
@@ -9069,7 +9057,15 @@ var _user$project$Game$decodeStopGame = A2(
 		}
 	},
 	_elm_lang$core$Json_Decode$string);
-var _user$project$Game$decodeJoinGame = A2(_elm_lang$core$Json_Decode$field, 'player', _elm_lang$core$Json_Decode$string);
+var _user$project$Game$decodePickCard = A2(
+	_elm_lang$core$Json_Decode$at,
+	{
+		ctor: '::',
+		_0: 'cards',
+		_1: {ctor: '[]'}
+	},
+	_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$string));
+var _user$project$Game$decodeJoinGame = A2(_elm_lang$core$Json_Decode$field, 'name', _elm_lang$core$Json_Decode$string);
 var _user$project$Game$userBordsStyle = _elm_lang$html$Html_Attributes$style(
 	{
 		ctor: '::',
@@ -9102,15 +9098,15 @@ var _user$project$Game$subscriptions = function (model) {
 	return _elm_lang$core$Platform_Sub$none;
 };
 var _user$project$Game$player = {
-	name: '',
-	status: 0,
+	cards: {ctor: '[]'},
 	points: 0,
-	cards: {ctor: '[]'}
+	name: '',
+	status: 0
 };
 var _user$project$Game$model = {pl: _user$project$Game$player};
 var _user$project$Game$Player = F4(
 	function (a, b, c, d) {
-		return {name: a, status: b, points: c, cards: d};
+		return {cards: a, points: b, name: c, status: d};
 	});
 var _user$project$Game$Model = function (a) {
 	return {pl: a};
@@ -9125,18 +9121,18 @@ var _user$project$Game$GameStateResponse = function (a) {
 };
 var _user$project$Game$gameState = function () {
 	var url = A2(_elm_lang$core$Basics_ops['++'], 'http://localhost:8080/gameState/', _user$project$Game$model.pl.name);
-	var request = A2(_elm_lang$http$Http$get, url, _user$project$Game$decodePickCard);
+	var request = A2(_elm_lang$http$Http$get, url, _user$project$Game$decodeGameState);
 	return A2(_elm_lang$http$Http$send, _user$project$Game$GameStateResponse, request);
 }();
 var _user$project$Game$GameState = {ctor: 'GameState'};
 var _user$project$Game$PickCardResponse = function (a) {
 	return {ctor: 'PickCardResponse', _0: a};
 };
-var _user$project$Game$pickCard = function () {
-	var url = A2(_elm_lang$core$Basics_ops['++'], 'http://localhost:8080/pickCard/', _user$project$Game$model.pl.name);
+var _user$project$Game$pickCard = function (player) {
+	var url = A2(_elm_lang$core$Basics_ops['++'], 'http://localhost:8080/pickCard/', player);
 	var request = A2(_elm_lang$http$Http$get, url, _user$project$Game$decodePickCard);
 	return A2(_elm_lang$http$Http$send, _user$project$Game$PickCardResponse, request);
-}();
+};
 var _user$project$Game$PickCard = {ctor: 'PickCard'};
 var _user$project$Game$StopGameResponse = function (a) {
 	return {ctor: 'StopGameResponse', _0: a};
@@ -9150,8 +9146,8 @@ var _user$project$Game$StopGame = {ctor: 'StopGame'};
 var _user$project$Game$JoinGameResponse = function (a) {
 	return {ctor: 'JoinGameResponse', _0: a};
 };
-var _user$project$Game$joinGame = function (name) {
-	var url = A2(_elm_lang$core$Basics_ops['++'], 'http://localhost:8080/newgame/', name);
+var _user$project$Game$joinGame = function (player) {
+	var url = A2(_elm_lang$core$Basics_ops['++'], 'http://localhost:8080/newgame/', player);
 	var request = A2(_elm_lang$http$Http$get, url, _user$project$Game$decodeJoinGame);
 	return A2(_elm_lang$http$Http$send, _user$project$Game$JoinGameResponse, request);
 };
@@ -9162,12 +9158,31 @@ var _user$project$Game$update = F2(
 			case 'Display':
 				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 			case 'PickCard':
-				return {ctor: '_Tuple2', _0: model, _1: _user$project$Game$pickCard};
+				return {
+					ctor: '_Tuple2',
+					_0: model,
+					_1: _user$project$Game$pickCard(model.pl.name)
+				};
 			case 'PickCardResponse':
 				if (_p0._0.ctor === 'Ok') {
-					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+					return {
+						ctor: '_Tuple2',
+						_0: _user$project$Game$Model(
+							A4(_user$project$Game$Player, _p0._0._0, 0, model.pl.name, 1)),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
 				} else {
-					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+					return {
+						ctor: '_Tuple2',
+						_0: _user$project$Game$Model(
+							A4(
+								_user$project$Game$Player,
+								{ctor: '[]'},
+								0,
+								'Error',
+								1)),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
 				}
 			case 'GameState':
 				return {ctor: '_Tuple2', _0: model, _1: _user$project$Game$gameState};
@@ -9190,10 +9205,10 @@ var _user$project$Game$update = F2(
 						_0: _user$project$Game$Model(
 							A4(
 								_user$project$Game$Player,
-								_p0._0._0,
-								1,
+								{ctor: '[]'},
 								0,
-								{ctor: '[]'})),
+								_p0._0._0,
+								1)),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				} else {
@@ -9202,10 +9217,10 @@ var _user$project$Game$update = F2(
 						_0: _user$project$Game$Model(
 							A4(
 								_user$project$Game$Player,
-								'Error',
-								1,
+								{ctor: '[]'},
 								0,
-								{ctor: '[]'})),
+								'Error',
+								1)),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				}
@@ -9221,7 +9236,7 @@ var _user$project$Game$update = F2(
 				return {
 					ctor: '_Tuple2',
 					_0: _user$project$Game$Model(
-						A4(_user$project$Game$Player, _p0._0, model.pl.status, model.pl.points, model.pl.cards)),
+						A4(_user$project$Game$Player, model.pl.cards, model.pl.points, _p0._0, model.pl.status)),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 		}

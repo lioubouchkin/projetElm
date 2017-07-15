@@ -10,18 +10,6 @@ var _user$project$Main$decodeGameState = A2(
 		}
 	},
 	_elm_lang$core$Json_Decode$string);
-var _user$project$Main$decodePickCard = A2(
-	_elm_lang$core$Json_Decode$at,
-	{
-		ctor: '::',
-		_0: 'data',
-		_1: {
-			ctor: '::',
-			_0: 'card',
-			_1: {ctor: '[]'}
-		}
-	},
-	_elm_lang$core$Json_Decode$string);
 var _user$project$Main$decodeStopGame = A2(
 	_elm_lang$core$Json_Decode$at,
 	{
@@ -34,7 +22,8 @@ var _user$project$Main$decodeStopGame = A2(
 		}
 	},
 	_elm_lang$core$Json_Decode$string);
-var _user$project$Main$decodeJoinGame = A2(_elm_lang$core$Json_Decode$field, 'player', _elm_lang$core$Json_Decode$string);
+var _user$project$Main$decodePickCard = A2(_elm_lang$core$Json_Decode$field, 'cards', _elm_lang$core$Json_Decode$string);
+var _user$project$Main$decodeJoinGame = A2(_elm_lang$core$Json_Decode$field, 'name', _elm_lang$core$Json_Decode$string);
 var _user$project$Main$userBordsStyle = _elm_lang$html$Html_Attributes$style(
 	{
 		ctor: '::',
@@ -97,11 +86,11 @@ var _user$project$Main$GameState = {ctor: 'GameState'};
 var _user$project$Main$PickCardResponse = function (a) {
 	return {ctor: 'PickCardResponse', _0: a};
 };
-var _user$project$Main$pickCard = function () {
+var _user$project$Main$pickCard = function (player) {
 	var url = A2(_elm_lang$core$Basics_ops['++'], 'http://localhost:8080/pickCard/', _user$project$Main$model.pl.name);
 	var request = A2(_elm_lang$http$Http$get, url, _user$project$Main$decodePickCard);
 	return A2(_elm_lang$http$Http$send, _user$project$Main$PickCardResponse, request);
-}();
+};
 var _user$project$Main$PickCard = {ctor: 'PickCard'};
 var _user$project$Main$StopGameResponse = function (a) {
 	return {ctor: 'StopGameResponse', _0: a};
@@ -115,8 +104,8 @@ var _user$project$Main$StopGame = {ctor: 'StopGame'};
 var _user$project$Main$JoinGameResponse = function (a) {
 	return {ctor: 'JoinGameResponse', _0: a};
 };
-var _user$project$Main$joinGame = function (name) {
-	var url = A2(_elm_lang$core$Basics_ops['++'], 'http://localhost:8080/newgame/', name);
+var _user$project$Main$joinGame = function (player) {
+	var url = A2(_elm_lang$core$Basics_ops['++'], 'http://localhost:8080/newgame/', player);
 	var request = A2(_elm_lang$http$Http$get, url, _user$project$Main$decodeJoinGame);
 	return A2(_elm_lang$http$Http$send, _user$project$Main$JoinGameResponse, request);
 };
@@ -127,10 +116,24 @@ var _user$project$Main$update = F2(
 			case 'Display':
 				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 			case 'PickCard':
-				return {ctor: '_Tuple2', _0: model, _1: _user$project$Main$pickCard};
+				return {
+					ctor: '_Tuple2',
+					_0: model,
+					_1: _user$project$Main$pickCard(model.pl.name)
+				};
 			case 'PickCardResponse':
 				if (_p0._0.ctor === 'Ok') {
-					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+					return {
+						ctor: '_Tuple2',
+						_0: _user$project$Main$Model(
+							A4(
+								_user$project$Main$Player,
+								model.pl.name,
+								1,
+								0,
+								{ctor: '[]'})),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
 				} else {
 					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				}
