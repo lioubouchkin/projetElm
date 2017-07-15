@@ -22,14 +22,6 @@ var _user$project$Game$decodeStopGame = A2(
 		}
 	},
 	_elm_lang$core$Json_Decode$string);
-var _user$project$Game$decodePickCard = A2(
-	_elm_lang$core$Json_Decode$at,
-	{
-		ctor: '::',
-		_0: 'cards',
-		_1: {ctor: '[]'}
-	},
-	_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$string));
 var _user$project$Game$decodeJoinGame = A2(_elm_lang$core$Json_Decode$field, 'name', _elm_lang$core$Json_Decode$string);
 var _user$project$Game$userBordsStyle = _elm_lang$html$Html_Attributes$style(
 	{
@@ -73,6 +65,41 @@ var _user$project$Game$Player = F4(
 	function (a, b, c, d) {
 		return {cards: a, points: b, name: c, status: d};
 	});
+var _user$project$Game$decodePickCard = A5(
+	_elm_lang$core$Json_Decode$map4,
+	_user$project$Game$Player,
+	A2(
+		_elm_lang$core$Json_Decode$at,
+		{
+			ctor: '::',
+			_0: 'cards',
+			_1: {ctor: '[]'}
+		},
+		_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$string)),
+	A2(
+		_elm_lang$core$Json_Decode$at,
+		{
+			ctor: '::',
+			_0: 'points',
+			_1: {ctor: '[]'}
+		},
+		_elm_lang$core$Json_Decode$int),
+	A2(
+		_elm_lang$core$Json_Decode$at,
+		{
+			ctor: '::',
+			_0: 'name',
+			_1: {ctor: '[]'}
+		},
+		_elm_lang$core$Json_Decode$string),
+	A2(
+		_elm_lang$core$Json_Decode$at,
+		{
+			ctor: '::',
+			_0: 'status',
+			_1: {ctor: '[]'}
+		},
+		_elm_lang$core$Json_Decode$int));
 var _user$project$Game$Model = function (a) {
 	return {pl: a};
 };
@@ -132,8 +159,7 @@ var _user$project$Game$update = F2(
 				if (_p0._0.ctor === 'Ok') {
 					return {
 						ctor: '_Tuple2',
-						_0: _user$project$Game$Model(
-							A4(_user$project$Game$Player, _p0._0._0, 0, model.pl.name, 1)),
+						_0: _user$project$Game$Model(_p0._0._0),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				} else {

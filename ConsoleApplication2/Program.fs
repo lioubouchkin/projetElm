@@ -1,6 +1,7 @@
 ﻿// Learn more about F# at http://fsharp.org
 // See the 'F# Tutorial' project for more help.
 open System
+open System.Text.RegularExpressions
 open System.Threading
 open Suave
 open Suave.Filters
@@ -49,11 +50,7 @@ let main argv =
   // new pack template
   let newPack = File.ReadAllText("filez/pack.txt")
 
-  let getItemToList =
-    fun ( data : list<String>, i : int ) ->
-        data.Item(i).Split(';') |> Array.toList
-
-      // 'a -> WebPart
+  // 'a -> WebPart
   let JSON v =
       let jsonSerializerSettings = new JsonSerializerSettings()
       jsonSerializerSettings.ContractResolver <- new CamelCasePropertyNamesContractResolver()
@@ -65,6 +62,15 @@ let main argv =
   // 'obj -> string
   let getJsonString = fun obj ->
       JsonConvert.SerializeObject(obj)
+  
+  // get card weight
+  let getCardValue str =
+    Regex.Replace(str, @"[^\d]", String.Empty ) |> int
+
+  // count the weight of cards in the list
+  let countPoints cards = 
+    cards |> List.map (fun value -> getCardValue value)
+          |> List.sum
 
   let startAnew =
     fun (player : String) ->
@@ -83,9 +89,11 @@ let main argv =
         let Pack = JsonConvert.DeserializeObject<Pack>(File.ReadAllText("filez/newGame.txt"))
         let r = randomIndex (Pack.Cards : List<String>) (new System.Random())
         let card = Pack.Cards.Item r
+        // pack left after one card is picked
         let Pack = { Cards = (remove r Pack.Cards) }
-        let Player = {Cards = List.append Player.Cards [card];
-            points = 0;
+        let playerCards = List.append Player.Cards [card]
+        let Player = {Cards = playerCards;
+            points = countPoints playerCards;
             name = Player.name;
             status = 1}
         File.WriteAllText("filez/"+player+".txt", JsonConvert.SerializeObject(Player))
