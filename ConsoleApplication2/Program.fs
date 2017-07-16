@@ -15,13 +15,27 @@ open Newtonsoft.Json.Serialization
 
 // 
 type Player = {
-    Cards : List<string>
+    cards : List<string>
     points : int
     name : string
     status : int
 }
-// Pack of cards to play
-type Pack = {Cards : List<string>}
+//
+type Adversaire = {
+    cards : int
+    points : int
+    name : string
+    status : int
+}
+// Data sent to html client
+type GameBoard = {
+    player : Player
+    adversaire : Adversaire
+}
+
+// Data saved at server
+type Game = {cards : List<string>;
+    players: List<Player>}
 
 [<EntryPoint>]
 let main argv = 
@@ -38,8 +52,7 @@ let main argv =
   // remove an item at index <i> from the list <l>
   let rec remove i l =
       match i, l with
-      | 0, x::xs ->
-        xs
+      | 0, x::xs -> xs
       | i, x::xs -> x::remove (i - 1) xs
       | i, [] -> failwith "index out of range"
   
@@ -48,7 +61,7 @@ let main argv =
       rng.Next(List.length lst)
  
   // new pack template
-  let newPack = File.ReadAllText("filez/pack.txt")
+  let newGame = File.ReadAllText("filez/gameTemplate.txt")
 
   // 'a -> WebPart
   let JSON v =
@@ -63,6 +76,10 @@ let main argv =
   let getJsonString = fun obj ->
       JsonConvert.SerializeObject(obj)
   
+  // function to add an element to the head of the list
+  let addToList = fun (lst:List<'T>) (element:'T) ->
+      element::lst
+
   // get card weight
   let getCardValue str =
     Regex.Replace(str, @"[^\d]", String.Empty ) |> int
@@ -73,32 +90,61 @@ let main argv =
           |> List.sum
 
   let startAnew =
-    fun (player : String) ->
-        File.WriteAllText("filez/newGame.txt", newPack)
-        let Player = { Cards=[];
+    fun (playerName : String) ->
+        if not(File.Exists "filez/newGame.txt")
+        then File.WriteAllText("filez/newGame.txt", newGame)
+        let newGame = JsonConvert.DeserializeObject<Game>(File.ReadAllText("filez/newGame.txt"))
+        let player:Player = { cards=[];
           points = 0;
-          name = player;
+          name = playerName;
           status = 1
         }
-        File.WriteAllText("filez/"+player+".txt", JsonConvert.SerializeObject(Player))
-        Player |> JSON
+
+        let adversaire:Adversaire = 
+            if (newGame.players.Length = 0) then { cards = 0;
+                  points = 0;
+                  name = "";
+                  status = 0
+                }
+            else { cards = newGame.players.Item(0).cards.Length;
+                  points = 0;
+                  name = newGame.players.Item(0).name;
+                  status = newGame.players.Item(0).status
+                }
+        let players = addToList newGame.players player
+        let newGame:Game = {
+            cards = newGame.cards;
+            players = players
+        }
+        File.WriteAllText("filez/newGame.txt", JsonConvert.SerializeObject(newGame))
+        let gameBoard : GameBoard = { player = player;
+            adversaire = adversaire       
+        }
+//        File.WriteAllText("filez/"+playerName+".txt", JsonConvert.SerializeObject(player))
+//        player |> JSON
+        gameBoard |> JSON
 
   let pPlay =
-    fun (player : String) ->
-        let Player = JsonConvert.DeserializeObject<Player>(File.ReadAllText("filez/" + player + ".txt"))
-        let Pack = JsonConvert.DeserializeObject<Pack>(File.ReadAllText("filez/newGame.txt"))
-        let r = randomIndex (Pack.Cards : List<String>) (new System.Random())
-        let card = Pack.Cards.Item r
-        // pack left after one card is picked
-        let Pack = { Cards = (remove r Pack.Cards) }
-        let playerCards = List.append Player.Cards [card]
-        let Player = {Cards = playerCards;
-            points = countPoints playerCards;
-            name = Player.name;
-            status = 1}
-        File.WriteAllText("filez/"+player+".txt", JsonConvert.SerializeObject(Player))
-        File.WriteAllText("filez/newGame.txt", JsonConvert.SerializeObject(Pack))
-        Player |> JSON
+    fun (playerName : String) ->
+        let player = JsonConvert.DeserializeObject<Player>(File.ReadAllText("filez/" + playerName + ".txt"))
+        match player.status with
+        | 1 -> 
+            let game = JsonConvert.DeserializeObject<Game>(File.ReadAllText("filez/newGame.txt"))
+            let r = randomIndex (game.cards : List<String>) (new System.Random())
+            let card = game.cards.Item r
+            // pack left after one card is picked
+            let game = { cards = (remove r game.cards); 
+                        players = [] }
+            let playerCards = List.append player.cards [card]
+            let player:Player = {cards = playerCards;
+                points = countPoints playerCards;
+                name = player.name;
+                status = 1}
+            File.WriteAllText("filez/"+playerName+".txt", JsonConvert.SerializeObject(player))
+            File.WriteAllText("filez/newGame.txt", JsonConvert.SerializeObject(game))
+            player |> JSON
+        | _ -> 
+        player |> JSON
 
   let pStop =
     fun (game : String, player : String) -> 
@@ -114,9 +160,6 @@ let main argv =
       choose [
         GET >=> choose
             [ path "/" >=> Files.browseFileHome "index.html"
-             // path "/game.js" >=> Files.browseFileHome "game.js"
-              path "/hello" >=> OK "why hey hello"
-              path "/goodbye" >=> OK "Good bye GET"
               pathScan "/newgame/%s" startAnew 
               pathScan "/pickCard/%s" pPlay 
               pathScan "/stop/%s/%s" pStop

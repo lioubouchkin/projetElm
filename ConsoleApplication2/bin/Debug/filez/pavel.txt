@@ -1,1 +1,0 @@
-{"Cards":["clubs2","hearts2","\r\nspades1","diamonds7","hearts5","hearts3","spades9"],"points":29,"name":"pavel","status":1}

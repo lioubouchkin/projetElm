@@ -1,6 +1,6 @@
 module Game exposing (..)
 
-import Html exposing (program, ul, li, text, div, h2, input, button, Html, Attribute)
+import Html exposing (program, ul, li, text, div, h2, h3, input, button, Html, Attribute)
 import Html.Events exposing (..)
 import String exposing (length)
 import Html.Attributes exposing (type_, placeholder, style)
@@ -33,16 +33,34 @@ player =
   ,name=""
   ,status=0
   }
+  
+type alias Adversaire = 
+  {cards:Int
+  ,points:Int
+  ,name:String
+  ,status:Int
+  }
+adversaire : Adversaire
+adversaire = 
+  {cards = 0
+  ,points=0
+  ,name = ""
+  ,status = 0
+  }
 
 type alias Model =
-  {pl : Player}
+  {pl : Player
+  ,adv: Adversaire
+  }
 model : Model
 model = 
-  {pl=player}
+  {pl=player
+  ,adv = adversaire
+  }
   
 init : (Model, Cmd Msg)
 init =
-  (Model player,
+  (model,
   Cmd.none)
 
 
@@ -52,13 +70,14 @@ type Msg
   = Display
   | Name String
   | JoinGame
-  | JoinGameResponse (Result Http.Error String)
+  | JoinGameResponse (Result Http.Error Model)
   | StopGame
   | StopGameResponse (Result Http.Error String)
   | PickCard
   | PickCardResponse (Result Http.Error Player)
   | GameState
   | GameStateResponse (Result Http.Error String)
+  | None
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -69,9 +88,13 @@ update msg model =
     PickCard ->
       (model, pickCard model.pl.name)
     PickCardResponse (Ok player) ->
-      (Model (player), Cmd.none)
+      (Model (player)
+        (Adversaire model.adv.cards model.adv.points model.adv.name model.adv.status)
+      ,Cmd.none)
     PickCardResponse (Err _) ->
-      (Model (Player [] 0 "Error" 1), Cmd.none)    
+      (Model (Player [] 0 "Error" 1)
+        (Adversaire model.adv.cards model.adv.points model.adv.name model.adv.status)
+      ,Cmd.none)    
     GameState ->
       (model, gameState)   
     GameStateResponse (Ok _) ->
@@ -80,10 +103,12 @@ update msg model =
       (model, Cmd.none)
     JoinGame ->
       (model, joinGame model.pl.name)
-    JoinGameResponse (Ok name) ->
-      (Model (Player [] 0 name 1), Cmd.none) 
+    JoinGameResponse (Ok model) ->
+      (Model (model.pl) (model.adv)
+      ,Cmd.none) 
     JoinGameResponse (Err _) ->
-      (Model (Player [] 0 "Error" 1), Cmd.none)
+      (Model (model.pl) (model.adv)
+      ,Cmd.none)
     StopGame ->
       (model, stopGame)  
     StopGameResponse (Ok _) ->
@@ -91,8 +116,12 @@ update msg model =
     StopGameResponse (Err _) ->
       (model, Cmd.none)
     Name name ->
-      (Model (Player model.pl.cards model.pl.points name model.pl.status),
-      Cmd.none)
+      (Model
+        (Player model.pl.cards model.pl.points name model.pl.status)
+          (Adversaire model.adv.cards model.adv.points model.adv.name model.adv.status)
+        ,Cmd.none)
+    None ->
+      (model, Cmd.none)
       
 
 -- SUBSCRIPTIONS
@@ -121,30 +150,63 @@ view model =
   div [ ] [
     div [ userBordsStyle ]
       [ h2 [] 
-           [ text (if model.pl.status == 1 
+           [ text (if model.pl.status /= 0 
                    then model.pl.name 
                    else "")
            ]
-      , if model.pl.status == 1
+      , if model.pl.status /= 0
           then div [] [ text "" ]
           else input [ type_ "text", placeholder "Votre nom", onInput Name] []
       , div [] 
             [ text ("Cards:"), 
-              if model.pl.status == 1 
+              if model.pl.status /= 0 
               then renderCards model.pl.cards 
               else text "" ]
       , div [] 
             [ text ("Points: "), 
-              text ( if model.pl.status == 1 
+              text ( if model.pl.status /= 0 
                      then toString (model.pl.points) 
                      else "")]
-      , button [ onClick (if model.pl.status == 1 
+      , button [ onClick (if model.pl.status /= 0 
                           then PickCard 
-                          else JoinGame ) ] 
-               [ text (if model.pl.status == 1 
-                       then "Pick Card" 
-                       else "Join Game") ]
+                          else if model.pl.status == 0
+                          then JoinGame 
+                          else None) ] 
+               [ text (if model.pl.status /= 0 
+                       then "Pick Card"
+                       else if model.pl.status == 0 
+                       then "Join Game"
+                       else "") ]
       ]
+    ,div [userBordsStyle]
+      [ h3 [] 
+           [ text (if (model.adv.status == 1) || (model.pl.status == 1)
+                   then "against" 
+                   else "")
+           ]
+       ]
+    ,div [ userBordsStyle ]
+      [ h2 [] [ text (if model.adv.status /= 0
+                      then model.adv.name 
+                      else "waiting for user..")
+              ]
+      , div [] 
+            [ text (if model.adv.status /= 0
+                      then "Cards: " 
+                      else ""),
+              text (if model.adv.status /= 0
+                      then toString model.adv.cards
+                      else "")
+            ]
+      , div [] 
+            [ text (if model.adv.status /= 0
+                    then "Points: "
+                    else ""), 
+              text ( if model.adv.status /= 0
+                     then toString model.adv.points
+                     else "" )
+            ]
+      ] 
     ]
  
  
@@ -161,9 +223,24 @@ joinGame player =
   in
     Http.send JoinGameResponse request
 
-decodeJoinGame : Decode.Decoder String
+decodeJoinGame : Decode.Decoder Model
 decodeJoinGame =
-  Decode.field "name" Decode.string
+  Decode.map2
+    Model
+      (Decode.map4
+        Player
+          (Decode.at ["player", "cards"] (Decode.list Decode.string))
+          (Decode.at ["player", "points"] Decode.int)
+          (Decode.at ["player", "name"] Decode.string)
+          (Decode.at ["player", "status"] Decode.int)
+      )
+      (Decode.map4
+        Adversaire
+          (Decode.at ["adversaire", "cards"] Decode.int)
+          (Decode.at ["adversaire", "points"] Decode.int)
+          (Decode.at ["adversaire", "name"] Decode.string)
+          (Decode.at ["adversaire", "status"] Decode.int)
+      )
 
 --
 
@@ -201,7 +278,7 @@ stopGame =
 
 decodeStopGame : Decode.Decoder String
 decodeStopGame =
-  Decode.at ["data", "game"] Decode.string
+  Decode.at ["data", "none"] Decode.string
 
 --
 

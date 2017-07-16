@@ -9052,12 +9052,11 @@ var _user$project$Game$decodeStopGame = A2(
 		_0: 'data',
 		_1: {
 			ctor: '::',
-			_0: 'game',
+			_0: 'none',
 			_1: {ctor: '[]'}
 		}
 	},
 	_elm_lang$core$Json_Decode$string);
-var _user$project$Game$decodeJoinGame = A2(_elm_lang$core$Json_Decode$field, 'name', _elm_lang$core$Json_Decode$string);
 var _user$project$Game$userBordsStyle = _elm_lang$html$Html_Attributes$style(
 	{
 		ctor: '::',
@@ -9089,13 +9088,15 @@ var _user$project$Game$renderCards = function (lst) {
 var _user$project$Game$subscriptions = function (model) {
 	return _elm_lang$core$Platform_Sub$none;
 };
+var _user$project$Game$adversaire = {cards: 0, points: 0, name: '', status: 0};
 var _user$project$Game$player = {
 	cards: {ctor: '[]'},
 	points: 0,
 	name: '',
 	status: 0
 };
-var _user$project$Game$model = {pl: _user$project$Game$player};
+var _user$project$Game$model = {pl: _user$project$Game$player, adv: _user$project$Game$adversaire};
+var _user$project$Game$init = {ctor: '_Tuple2', _0: _user$project$Game$model, _1: _elm_lang$core$Platform_Cmd$none};
 var _user$project$Game$Player = F4(
 	function (a, b, c, d) {
 		return {cards: a, points: b, name: c, status: d};
@@ -9135,14 +9136,120 @@ var _user$project$Game$decodePickCard = A5(
 			_1: {ctor: '[]'}
 		},
 		_elm_lang$core$Json_Decode$int));
-var _user$project$Game$Model = function (a) {
-	return {pl: a};
-};
-var _user$project$Game$init = {
-	ctor: '_Tuple2',
-	_0: _user$project$Game$Model(_user$project$Game$player),
-	_1: _elm_lang$core$Platform_Cmd$none
-};
+var _user$project$Game$Adversaire = F4(
+	function (a, b, c, d) {
+		return {cards: a, points: b, name: c, status: d};
+	});
+var _user$project$Game$Model = F2(
+	function (a, b) {
+		return {pl: a, adv: b};
+	});
+var _user$project$Game$decodeJoinGame = A3(
+	_elm_lang$core$Json_Decode$map2,
+	_user$project$Game$Model,
+	A5(
+		_elm_lang$core$Json_Decode$map4,
+		_user$project$Game$Player,
+		A2(
+			_elm_lang$core$Json_Decode$at,
+			{
+				ctor: '::',
+				_0: 'player',
+				_1: {
+					ctor: '::',
+					_0: 'cards',
+					_1: {ctor: '[]'}
+				}
+			},
+			_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$string)),
+		A2(
+			_elm_lang$core$Json_Decode$at,
+			{
+				ctor: '::',
+				_0: 'player',
+				_1: {
+					ctor: '::',
+					_0: 'points',
+					_1: {ctor: '[]'}
+				}
+			},
+			_elm_lang$core$Json_Decode$int),
+		A2(
+			_elm_lang$core$Json_Decode$at,
+			{
+				ctor: '::',
+				_0: 'player',
+				_1: {
+					ctor: '::',
+					_0: 'name',
+					_1: {ctor: '[]'}
+				}
+			},
+			_elm_lang$core$Json_Decode$string),
+		A2(
+			_elm_lang$core$Json_Decode$at,
+			{
+				ctor: '::',
+				_0: 'player',
+				_1: {
+					ctor: '::',
+					_0: 'status',
+					_1: {ctor: '[]'}
+				}
+			},
+			_elm_lang$core$Json_Decode$int)),
+	A5(
+		_elm_lang$core$Json_Decode$map4,
+		_user$project$Game$Adversaire,
+		A2(
+			_elm_lang$core$Json_Decode$at,
+			{
+				ctor: '::',
+				_0: 'adversaire',
+				_1: {
+					ctor: '::',
+					_0: 'cards',
+					_1: {ctor: '[]'}
+				}
+			},
+			_elm_lang$core$Json_Decode$int),
+		A2(
+			_elm_lang$core$Json_Decode$at,
+			{
+				ctor: '::',
+				_0: 'adversaire',
+				_1: {
+					ctor: '::',
+					_0: 'points',
+					_1: {ctor: '[]'}
+				}
+			},
+			_elm_lang$core$Json_Decode$int),
+		A2(
+			_elm_lang$core$Json_Decode$at,
+			{
+				ctor: '::',
+				_0: 'adversaire',
+				_1: {
+					ctor: '::',
+					_0: 'name',
+					_1: {ctor: '[]'}
+				}
+			},
+			_elm_lang$core$Json_Decode$string),
+		A2(
+			_elm_lang$core$Json_Decode$at,
+			{
+				ctor: '::',
+				_0: 'adversaire',
+				_1: {
+					ctor: '::',
+					_0: 'status',
+					_1: {ctor: '[]'}
+				}
+			},
+			_elm_lang$core$Json_Decode$int)));
+var _user$project$Game$None = {ctor: 'None'};
 var _user$project$Game$GameStateResponse = function (a) {
 	return {ctor: 'GameStateResponse', _0: a};
 };
@@ -9194,19 +9301,24 @@ var _user$project$Game$update = F2(
 				if (_p0._0.ctor === 'Ok') {
 					return {
 						ctor: '_Tuple2',
-						_0: _user$project$Game$Model(_p0._0._0),
+						_0: A2(
+							_user$project$Game$Model,
+							_p0._0._0,
+							A4(_user$project$Game$Adversaire, model.adv.cards, model.adv.points, model.adv.name, model.adv.status)),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				} else {
 					return {
 						ctor: '_Tuple2',
-						_0: _user$project$Game$Model(
+						_0: A2(
+							_user$project$Game$Model,
 							A4(
 								_user$project$Game$Player,
 								{ctor: '[]'},
 								0,
 								'Error',
-								1)),
+								1),
+							A4(_user$project$Game$Adversaire, model.adv.cards, model.adv.points, model.adv.name, model.adv.status)),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				}
@@ -9226,27 +9338,16 @@ var _user$project$Game$update = F2(
 				};
 			case 'JoinGameResponse':
 				if (_p0._0.ctor === 'Ok') {
+					var _p1 = _p0._0._0;
 					return {
 						ctor: '_Tuple2',
-						_0: _user$project$Game$Model(
-							A4(
-								_user$project$Game$Player,
-								{ctor: '[]'},
-								0,
-								_p0._0._0,
-								1)),
+						_0: A2(_user$project$Game$Model, _p1.pl, _p1.adv),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				} else {
 					return {
 						ctor: '_Tuple2',
-						_0: _user$project$Game$Model(
-							A4(
-								_user$project$Game$Player,
-								{ctor: '[]'},
-								0,
-								'Error',
-								1)),
+						_0: A2(_user$project$Game$Model, model.pl, model.adv),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				}
@@ -9258,13 +9359,17 @@ var _user$project$Game$update = F2(
 				} else {
 					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				}
-			default:
+			case 'Name':
 				return {
 					ctor: '_Tuple2',
-					_0: _user$project$Game$Model(
-						A4(_user$project$Game$Player, model.pl.cards, model.pl.points, _p0._0, model.pl.status)),
+					_0: A2(
+						_user$project$Game$Model,
+						A4(_user$project$Game$Player, model.pl.cards, model.pl.points, _p0._0, model.pl.status),
+						A4(_user$project$Game$Adversaire, model.adv.cards, model.adv.points, model.adv.name, model.adv.status)),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
+			default:
+				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 		}
 	});
 var _user$project$Game$JoinGame = {ctor: 'JoinGame'};
@@ -9292,12 +9397,12 @@ var _user$project$Game$view = function (model) {
 						{
 							ctor: '::',
 							_0: _elm_lang$html$Html$text(
-								_elm_lang$core$Native_Utils.eq(model.pl.status, 1) ? model.pl.name : ''),
+								(!_elm_lang$core$Native_Utils.eq(model.pl.status, 0)) ? model.pl.name : ''),
 							_1: {ctor: '[]'}
 						}),
 					_1: {
 						ctor: '::',
-						_0: _elm_lang$core$Native_Utils.eq(model.pl.status, 1) ? A2(
+						_0: (!_elm_lang$core$Native_Utils.eq(model.pl.status, 0)) ? A2(
 							_elm_lang$html$Html$div,
 							{ctor: '[]'},
 							{
@@ -9330,7 +9435,7 @@ var _user$project$Game$view = function (model) {
 									_0: _elm_lang$html$Html$text('Cards:'),
 									_1: {
 										ctor: '::',
-										_0: _elm_lang$core$Native_Utils.eq(model.pl.status, 1) ? _user$project$Game$renderCards(model.pl.cards) : _elm_lang$html$Html$text(''),
+										_0: (!_elm_lang$core$Native_Utils.eq(model.pl.status, 0)) ? _user$project$Game$renderCards(model.pl.cards) : _elm_lang$html$Html$text(''),
 										_1: {ctor: '[]'}
 									}
 								}),
@@ -9345,7 +9450,7 @@ var _user$project$Game$view = function (model) {
 										_1: {
 											ctor: '::',
 											_0: _elm_lang$html$Html$text(
-												_elm_lang$core$Native_Utils.eq(model.pl.status, 1) ? _elm_lang$core$Basics$toString(model.pl.points) : ''),
+												(!_elm_lang$core$Native_Utils.eq(model.pl.status, 0)) ? _elm_lang$core$Basics$toString(model.pl.points) : ''),
 											_1: {ctor: '[]'}
 										}
 									}),
@@ -9356,13 +9461,13 @@ var _user$project$Game$view = function (model) {
 										{
 											ctor: '::',
 											_0: _elm_lang$html$Html_Events$onClick(
-												_elm_lang$core$Native_Utils.eq(model.pl.status, 1) ? _user$project$Game$PickCard : _user$project$Game$JoinGame),
+												(!_elm_lang$core$Native_Utils.eq(model.pl.status, 0)) ? _user$project$Game$PickCard : (_elm_lang$core$Native_Utils.eq(model.pl.status, 0) ? _user$project$Game$JoinGame : _user$project$Game$None)),
 											_1: {ctor: '[]'}
 										},
 										{
 											ctor: '::',
 											_0: _elm_lang$html$Html$text(
-												_elm_lang$core$Native_Utils.eq(model.pl.status, 1) ? 'Pick Card' : 'Join Game'),
+												(!_elm_lang$core$Native_Utils.eq(model.pl.status, 0)) ? 'Pick Card' : (_elm_lang$core$Native_Utils.eq(model.pl.status, 0) ? 'Join Game' : '')),
 											_1: {ctor: '[]'}
 										}),
 									_1: {ctor: '[]'}
@@ -9371,7 +9476,87 @@ var _user$project$Game$view = function (model) {
 						}
 					}
 				}),
-			_1: {ctor: '[]'}
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$div,
+					{
+						ctor: '::',
+						_0: _user$project$Game$userBordsStyle,
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$h3,
+							{ctor: '[]'},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text(
+									(_elm_lang$core$Native_Utils.eq(model.adv.status, 1) || _elm_lang$core$Native_Utils.eq(model.pl.status, 1)) ? 'against' : ''),
+								_1: {ctor: '[]'}
+							}),
+						_1: {ctor: '[]'}
+					}),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$div,
+						{
+							ctor: '::',
+							_0: _user$project$Game$userBordsStyle,
+							_1: {ctor: '[]'}
+						},
+						{
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$h2,
+								{ctor: '[]'},
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html$text(
+										(!_elm_lang$core$Native_Utils.eq(model.adv.status, 0)) ? model.adv.name : 'waiting for user..'),
+									_1: {ctor: '[]'}
+								}),
+							_1: {
+								ctor: '::',
+								_0: A2(
+									_elm_lang$html$Html$div,
+									{ctor: '[]'},
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html$text(
+											(!_elm_lang$core$Native_Utils.eq(model.adv.status, 0)) ? 'Cards: ' : ''),
+										_1: {
+											ctor: '::',
+											_0: _elm_lang$html$Html$text(
+												(!_elm_lang$core$Native_Utils.eq(model.adv.status, 0)) ? _elm_lang$core$Basics$toString(model.adv.cards) : ''),
+											_1: {ctor: '[]'}
+										}
+									}),
+								_1: {
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$div,
+										{ctor: '[]'},
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html$text(
+												(!_elm_lang$core$Native_Utils.eq(model.adv.status, 0)) ? 'Points: ' : ''),
+											_1: {
+												ctor: '::',
+												_0: _elm_lang$html$Html$text(
+													(!_elm_lang$core$Native_Utils.eq(model.adv.status, 0)) ? _elm_lang$core$Basics$toString(model.adv.points) : ''),
+												_1: {ctor: '[]'}
+											}
+										}),
+									_1: {ctor: '[]'}
+								}
+							}
+						}),
+					_1: {ctor: '[]'}
+				}
+			}
 		});
 };
 var _user$project$Game$main = _elm_lang$html$Html$program(
