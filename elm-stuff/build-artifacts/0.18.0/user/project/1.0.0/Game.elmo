@@ -10,18 +10,6 @@ var _user$project$Game$decodeGameState = A2(
 		}
 	},
 	_elm_lang$core$Json_Decode$string);
-var _user$project$Game$decodeStopGame = A2(
-	_elm_lang$core$Json_Decode$at,
-	{
-		ctor: '::',
-		_0: 'data',
-		_1: {
-			ctor: '::',
-			_0: 'none',
-			_1: {ctor: '[]'}
-		}
-	},
-	_elm_lang$core$Json_Decode$string);
 var _user$project$Game$userBordsStyle = _elm_lang$html$Html_Attributes$style(
 	{
 		ctor: '::',
@@ -66,41 +54,6 @@ var _user$project$Game$Player = F4(
 	function (a, b, c, d) {
 		return {cards: a, points: b, name: c, status: d};
 	});
-var _user$project$Game$decodePickCard = A5(
-	_elm_lang$core$Json_Decode$map4,
-	_user$project$Game$Player,
-	A2(
-		_elm_lang$core$Json_Decode$at,
-		{
-			ctor: '::',
-			_0: 'cards',
-			_1: {ctor: '[]'}
-		},
-		_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$string)),
-	A2(
-		_elm_lang$core$Json_Decode$at,
-		{
-			ctor: '::',
-			_0: 'points',
-			_1: {ctor: '[]'}
-		},
-		_elm_lang$core$Json_Decode$int),
-	A2(
-		_elm_lang$core$Json_Decode$at,
-		{
-			ctor: '::',
-			_0: 'name',
-			_1: {ctor: '[]'}
-		},
-		_elm_lang$core$Json_Decode$string),
-	A2(
-		_elm_lang$core$Json_Decode$at,
-		{
-			ctor: '::',
-			_0: 'status',
-			_1: {ctor: '[]'}
-		},
-		_elm_lang$core$Json_Decode$int));
 var _user$project$Game$Adversaire = F4(
 	function (a, b, c, d) {
 		return {cards: a, points: b, name: c, status: d};
@@ -110,6 +63,111 @@ var _user$project$Game$Model = F2(
 		return {pl: a, adv: b};
 	});
 var _user$project$Game$decodeJoinGame = A3(
+	_elm_lang$core$Json_Decode$map2,
+	_user$project$Game$Model,
+	A5(
+		_elm_lang$core$Json_Decode$map4,
+		_user$project$Game$Player,
+		A2(
+			_elm_lang$core$Json_Decode$at,
+			{
+				ctor: '::',
+				_0: 'player',
+				_1: {
+					ctor: '::',
+					_0: 'cards',
+					_1: {ctor: '[]'}
+				}
+			},
+			_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$string)),
+		A2(
+			_elm_lang$core$Json_Decode$at,
+			{
+				ctor: '::',
+				_0: 'player',
+				_1: {
+					ctor: '::',
+					_0: 'points',
+					_1: {ctor: '[]'}
+				}
+			},
+			_elm_lang$core$Json_Decode$int),
+		A2(
+			_elm_lang$core$Json_Decode$at,
+			{
+				ctor: '::',
+				_0: 'player',
+				_1: {
+					ctor: '::',
+					_0: 'name',
+					_1: {ctor: '[]'}
+				}
+			},
+			_elm_lang$core$Json_Decode$string),
+		A2(
+			_elm_lang$core$Json_Decode$at,
+			{
+				ctor: '::',
+				_0: 'player',
+				_1: {
+					ctor: '::',
+					_0: 'status',
+					_1: {ctor: '[]'}
+				}
+			},
+			_elm_lang$core$Json_Decode$int)),
+	A5(
+		_elm_lang$core$Json_Decode$map4,
+		_user$project$Game$Adversaire,
+		A2(
+			_elm_lang$core$Json_Decode$at,
+			{
+				ctor: '::',
+				_0: 'adversaire',
+				_1: {
+					ctor: '::',
+					_0: 'cards',
+					_1: {ctor: '[]'}
+				}
+			},
+			_elm_lang$core$Json_Decode$int),
+		A2(
+			_elm_lang$core$Json_Decode$at,
+			{
+				ctor: '::',
+				_0: 'adversaire',
+				_1: {
+					ctor: '::',
+					_0: 'points',
+					_1: {ctor: '[]'}
+				}
+			},
+			_elm_lang$core$Json_Decode$int),
+		A2(
+			_elm_lang$core$Json_Decode$at,
+			{
+				ctor: '::',
+				_0: 'adversaire',
+				_1: {
+					ctor: '::',
+					_0: 'name',
+					_1: {ctor: '[]'}
+				}
+			},
+			_elm_lang$core$Json_Decode$string),
+		A2(
+			_elm_lang$core$Json_Decode$at,
+			{
+				ctor: '::',
+				_0: 'adversaire',
+				_1: {
+					ctor: '::',
+					_0: 'status',
+					_1: {ctor: '[]'}
+				}
+			},
+			_elm_lang$core$Json_Decode$int)));
+var _user$project$Game$decodePickCard = A3(
 	_elm_lang$core$Json_Decode$map2,
 	_user$project$Game$Model,
 	A5(
@@ -233,15 +291,6 @@ var _user$project$Game$pickCard = function (player) {
 	return A2(_elm_lang$http$Http$send, _user$project$Game$PickCardResponse, request);
 };
 var _user$project$Game$PickCard = {ctor: 'PickCard'};
-var _user$project$Game$StopGameResponse = function (a) {
-	return {ctor: 'StopGameResponse', _0: a};
-};
-var _user$project$Game$stopGame = function () {
-	var url = A2(_elm_lang$core$Basics_ops['++'], 'http://localhost:8080/stopGame/', _user$project$Game$model.pl.name);
-	var request = A2(_elm_lang$http$Http$get, url, _user$project$Game$decodeStopGame);
-	return A2(_elm_lang$http$Http$send, _user$project$Game$StopGameResponse, request);
-}();
-var _user$project$Game$StopGame = {ctor: 'StopGame'};
 var _user$project$Game$JoinGameResponse = function (a) {
 	return {ctor: 'JoinGameResponse', _0: a};
 };
@@ -266,24 +315,13 @@ var _user$project$Game$update = F2(
 				if (_p0._0.ctor === 'Ok') {
 					return {
 						ctor: '_Tuple2',
-						_0: A2(
-							_user$project$Game$Model,
-							_p0._0._0,
-							A4(_user$project$Game$Adversaire, model.adv.cards, model.adv.points, model.adv.name, model.adv.status)),
+						_0: A2(_user$project$Game$Model, model.pl, model.adv),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				} else {
 					return {
 						ctor: '_Tuple2',
-						_0: A2(
-							_user$project$Game$Model,
-							A4(
-								_user$project$Game$Player,
-								{ctor: '[]'},
-								0,
-								'Error',
-								1),
-							A4(_user$project$Game$Adversaire, model.adv.cards, model.adv.points, model.adv.name, model.adv.status)),
+						_0: A2(_user$project$Game$Model, model.pl, model.adv),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				}
@@ -315,14 +353,6 @@ var _user$project$Game$update = F2(
 						_0: A2(_user$project$Game$Model, model.pl, model.adv),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
-				}
-			case 'StopGame':
-				return {ctor: '_Tuple2', _0: model, _1: _user$project$Game$stopGame};
-			case 'StopGameResponse':
-				if (_p0._0.ctor === 'Ok') {
-					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-				} else {
-					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				}
 			case 'Name':
 				return {
@@ -480,7 +510,7 @@ var _user$project$Game$view = function (model) {
 								{
 									ctor: '::',
 									_0: _elm_lang$html$Html$text(
-										(!_elm_lang$core$Native_Utils.eq(model.adv.status, 0)) ? model.adv.name : 'waiting for user..'),
+										(!_elm_lang$core$Native_Utils.eq(model.adv.status, 0)) ? model.adv.name : 'waiting for a new player...'),
 									_1: {ctor: '[]'}
 								}),
 							_1: {

@@ -71,10 +71,8 @@ type Msg
   | Name String
   | JoinGame
   | JoinGameResponse (Result Http.Error Model)
-  | StopGame
-  | StopGameResponse (Result Http.Error String)
   | PickCard
-  | PickCardResponse (Result Http.Error Player)
+  | PickCardResponse (Result Http.Error Model)
   | GameState
   | GameStateResponse (Result Http.Error String)
   | None
@@ -88,12 +86,10 @@ update msg model =
     PickCard ->
       (model, pickCard model.pl.name)
     PickCardResponse (Ok player) ->
-      (Model (player)
-        (Adversaire model.adv.cards model.adv.points model.adv.name model.adv.status)
+      (Model (model.pl) (model.adv)
       ,Cmd.none)
     PickCardResponse (Err _) ->
-      (Model (Player [] 0 "Error" 1)
-        (Adversaire model.adv.cards model.adv.points model.adv.name model.adv.status)
+      (Model (model.pl) (model.adv)
       ,Cmd.none)    
     GameState ->
       (model, gameState)   
@@ -109,12 +105,6 @@ update msg model =
     JoinGameResponse (Err _) ->
       (Model (model.pl) (model.adv)
       ,Cmd.none)
-    StopGame ->
-      (model, stopGame)  
-    StopGameResponse (Ok _) ->
-      (model, Cmd.none)
-    StopGameResponse (Err _) ->
-      (model, Cmd.none)
     Name name ->
       (Model
         (Player model.pl.cards model.pl.points name model.pl.status)
@@ -188,7 +178,7 @@ view model =
     ,div [ userBordsStyle ]
       [ h2 [] [ text (if model.adv.status /= 0
                       then model.adv.name 
-                      else "waiting for user..")
+                      else "waiting for a new player...")
               ]
       , div [] 
             [ text (if model.adv.status /= 0
@@ -255,32 +245,27 @@ pickCard player =
   in
     Http.send PickCardResponse request
 
-decodePickCard : Decode.Decoder Player
+decodePickCard : Decode.Decoder Model
 decodePickCard =
-  Decode.map4
-    Player     
-      (Decode.at ["cards"] (Decode.list Decode.string))
-      (Decode.at ["points"] Decode.int)
-      (Decode.at ["name"] Decode.string)
-      (Decode.at ["status" ] Decode.int)
---
-
-stopGame : Cmd Msg
-stopGame =
-  let
-    url =
-      "http://localhost:8080/stopGame/" ++ model.pl.name
-
-    request =
-      Http.get url decodeStopGame
-  in
-    Http.send StopGameResponse request
-
-decodeStopGame : Decode.Decoder String
-decodeStopGame =
-  Decode.at ["data", "none"] Decode.string
+  Decode.map2
+    Model
+      (Decode.map4
+        Player
+          (Decode.at ["player", "cards"] (Decode.list Decode.string))
+          (Decode.at ["player", "points"] Decode.int)
+          (Decode.at ["player", "name"] Decode.string)
+          (Decode.at ["player", "status"] Decode.int)
+      )
+      (Decode.map4
+        Adversaire
+          (Decode.at ["adversaire", "cards"] Decode.int)
+          (Decode.at ["adversaire", "points"] Decode.int)
+          (Decode.at ["adversaire", "name"] Decode.string)
+          (Decode.at ["adversaire", "status"] Decode.int)
+      )
 
 --
+
 
 gameState : Cmd Msg
 gameState =

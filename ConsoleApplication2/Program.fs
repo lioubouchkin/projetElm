@@ -13,14 +13,20 @@ open System.Runtime.Serialization
 open Newtonsoft.Json
 open Newtonsoft.Json.Serialization
 
-// 
+// cards: list of cards picked by the player
+// points: the total points of the cards
+// name: player's name
+// status: player's status (0 - no player, 1 - the player started to play, 2 - the player finished the game, 3 - the player lost)
 type Player = {
     cards : List<string>
     points : int
     name : string
     status : int
 }
-//
+// cards: cards number picked by the player
+// points: the total points of the cards
+// name: player's name
+// status: player's status (0 - no player, 1 - the player started to play, 2 - the player finished the game, 3 - the player lost)
 type Adversaire = {
     cards : int
     points : int
@@ -89,6 +95,11 @@ let main argv =
     cards |> List.map (fun value -> getCardValue value)
           |> List.sum
 
+  let findIndexByName =
+    fun (name:String) -> fun (list:List<Player>) ->
+      List.findIndex (fun (elem:Player) -> elem.name = name) list
+  
+  // function treats the action of joining/starting the game
   let startAnew =
     fun (playerName : String) ->
         if not(File.Exists "filez/newGame.txt")
@@ -120,31 +131,75 @@ let main argv =
         let gameBoard : GameBoard = { player = player;
             adversaire = adversaire       
         }
-//        File.WriteAllText("filez/"+playerName+".txt", JsonConvert.SerializeObject(player))
-//        player |> JSON
         gameBoard |> JSON
 
+  // function treats the action of picking a card
   let pPlay =
     fun (playerName : String) ->
-        let player = JsonConvert.DeserializeObject<Player>(File.ReadAllText("filez/" + playerName + ".txt"))
+        // the game state before picking a card 
+        let game = JsonConvert.DeserializeObject<Game>(File.ReadAllText("filez/newGame.txt"))
+        let playerIndex = findIndexByName playerName game.players
+        let player =
+            // player didn't start the game - the operation is not authoried
+            if playerIndex >= 0 then (game.players.Item ( findIndexByName playerName game.players ))
+            else { cards=[];
+              points = 0;
+              name = "";
+              status = 0
+            }
+        
         match player.status with
-        | 1 -> 
-            let game = JsonConvert.DeserializeObject<Game>(File.ReadAllText("filez/newGame.txt"))
+        | 1 ->  // an active player
             let r = randomIndex (game.cards : List<String>) (new System.Random())
             let card = game.cards.Item r
-            // pack left after one card is picked
-            let game = { cards = (remove r game.cards); 
-                        players = [] }
             let playerCards = List.append player.cards [card]
+
+            // player's updated state after picking the card
             let player:Player = {cards = playerCards;
                 points = countPoints playerCards;
                 name = player.name;
                 status = 1}
-            File.WriteAllText("filez/"+playerName+".txt", JsonConvert.SerializeObject(player))
+
+            let adversaireIndex = 
+                if playerIndex = 1 then 0
+                else 1
+            
+            // the rival player data for the web browser
+            let adversaire : Adversaire =
+                if (adversaireIndex = 1) && (game.players.Length = 1)
+                then { cards = 0;
+                     points = 0;
+                     name = "";
+                     status = 0
+                     }
+                else { cards = game.players.Item(adversaireIndex).cards.Length;
+                     points = 0;
+                     name = game.players.Item(adversaireIndex).name;
+                     status = game.players.Item(adversaireIndex).status
+                     }
+
+            let gameBoard : GameBoard = { player = player;
+                adversaire = adversaire       
+            }
+            
+            // write a new game state 
+            let game = if (adversaireIndex = 1) && (game.players.Length = 1)
+                       then { cards = (remove r game.cards); 
+                            players = [player] }
+                       else { cards = (remove r game.cards); 
+                            players = [player;
+                                      { cards = game.players.Item(adversaireIndex).cards;
+                                              points = game.players.Item(adversaireIndex).points;
+                                              name = game.players.Item(adversaireIndex).name;
+                                              status = game.players.Item(adversaireIndex).status
+                                       }]
+                            }
             File.WriteAllText("filez/newGame.txt", JsonConvert.SerializeObject(game))
+
+            gameBoard |> JSON       
+        | _ -> // TODO write behavior for other statuses
             player |> JSON
-        | _ -> 
-        player |> JSON
+
 
   let pStop =
     fun (game : String, player : String) -> 
